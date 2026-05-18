@@ -1,5 +1,5 @@
 # PygameCERTO
-Jogo pygame DesSoft
+Jogo pygame DeSoft
 
 AUTORES:
 Cristiana Pacces, Julie Yoshihiro
