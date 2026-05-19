@@ -10,10 +10,14 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Entregador')
 
 # Carrega a imagem de fundo
-imagem_fundo = pygame.image.load('assets/Imagens/fundo_inicio.png').convert()
+imagem_fundo = pygame.image.load('Assets/Imagens/fundo_inicio.png').convert()
 imagem_fundo = pygame.transform.scale(imagem_fundo, (WIDTH, HEIGHT))
 imagem_fundo_rect = imagem_fundo.get_rect()
 
+# Música de fundo
+pygame.mixer.music.load('Assets/Sons/Telainicio.mp3')
+pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.play(-1)
 
 # Função para mostrar a tela inicial
 def show_start_screen():
@@ -32,7 +36,6 @@ def show_start_screen():
         "fazer suas entregas quentinhas",
         "Desvie dos carros, sobreviva ao trânsito",
         "e entregue as pizzas o mais rápido possível!",
-        "Até onde você consegue chegar?",
         "",
     ]
 
@@ -50,7 +53,6 @@ def show_start_screen():
             rendered_line += char
             text = font.render(rendered_line, True, (255, 255, 255))
             window.blit(imagem_fundo, imagem_fundo_rect)
-            window.blit(imagem_fundo, imagem_fundo_rect_2)
             window.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 4))
             for j in range(i):
                 previous_text = font.render(story[j], True, (255, 255, 255))
