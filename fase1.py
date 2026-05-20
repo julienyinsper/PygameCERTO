@@ -1,10 +1,5 @@
-
 import pygame
 import random
-
-
-
-
 
 def fase1():
     pygame.init()
