@@ -16,7 +16,7 @@ AMARELO = (255, 215, 0)
 PRETO = (0, 0, 0)
 
 # Fundo
-fundo = pygame.image.load("Assets/Imagens/fundo_inicio.png").convert()
+fundo = pygame.image.load("Assets/Imagens/Passounivel.png").convert()
 fundo = pygame.transform.scale(fundo, (WIDTH, HEIGHT))
 
 # Sons
