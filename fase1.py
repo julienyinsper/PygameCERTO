@@ -1,3 +1,4 @@
+
 import pygame
 import random
 import sys
@@ -36,11 +37,22 @@ def fase1():
 
     try:
         pygame.mixer.init()
+
+        # Música de fundo da fase
         pygame.mixer.music.load("Assets/Sons/Trilhasonora.mp3")
         pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
+
+        # Sons especiais
+        som_comeco = pygame.mixer.Sound("Assets/Sons/Comeco.mp3")
+        som_gameover = pygame.mixer.Sound("Assets/Sons/Gameover.mp3")
+
+        som_comeco.set_volume(0.8)
+        som_gameover.set_volume(0.8)
+
     except:
-        pass
+        som_comeco = None
+        som_gameover = None
 
     WIDTH, HEIGHT = 900, 600
     window = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -175,13 +187,24 @@ def fase1():
 
         # Colisão com carros
         if pygame.sprite.spritecollide(jogador, all_cars, False, pygame.sprite.collide_mask):
+            pygame.mixer.music.stop()
+
+            if som_gameover:
+                som_gameover.play()
+
             mostrar_derrota(window, WIDTH, HEIGHT, imagem_fundo)
             resultado = 0
             game = False
             continue
 
-        # Vitória
+        # Vitória: quando o jogador toca no cliente / zona de entrega
         if jogador.rect.colliderect(zona_entrega):
+            pygame.mixer.music.stop()
+
+            if som_comeco:
+                som_comeco.play()
+                pygame.time.delay(1000)
+
             resultado = 3
             game = False
             continue
