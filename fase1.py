@@ -43,11 +43,13 @@ def fase1():
         pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
 
-        # Sons especiais
+        # Som de começo da fase: "Let's go"
         som_comeco = pygame.mixer.Sound("Assets/Sons/Comeco.mp3")
-        som_gameover = pygame.mixer.Sound("Assets/Sons/Gameover.mp3")
-
         som_comeco.set_volume(0.8)
+        som_comeco.play()
+
+        # Som de game over
+        som_gameover = pygame.mixer.Sound("Assets/Sons/Gameover.mp3")
         som_gameover.set_volume(0.8)
 
     except:
@@ -185,7 +187,7 @@ def fase1():
 
         all_sprites.update()
 
-        # Colisão com carros
+        # Colisão com carros: derrota
         if pygame.sprite.spritecollide(jogador, all_cars, False, pygame.sprite.collide_mask):
             pygame.mixer.music.stop()
 
@@ -199,12 +201,6 @@ def fase1():
 
         # Vitória: quando o jogador toca no cliente / zona de entrega
         if jogador.rect.colliderect(zona_entrega):
-            pygame.mixer.music.stop()
-
-            if som_comeco:
-                som_comeco.play()
-                pygame.time.delay(1000)
-
             resultado = 3
             game = False
             continue
