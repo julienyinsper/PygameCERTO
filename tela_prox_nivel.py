@@ -1,72 +1,91 @@
 import pygame
-import time
 
 pygame.init()
+pygame.mixer.init()
 
-# Tela principal
+# Configuração da tela
 WIDTH = 900
 HEIGHT = 600
-window = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Entregando')
 
-# ----- CORES
+window = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Entregando")
+
+#Cores
 BRANCO = (255, 255, 255)
 AMARELO = (255, 215, 0)
 PRETO = (0, 0, 0)
 
-# Carega imagens
-fundo = pygame.image.load('Assets/Imagens/fundo_inicio.png').convert()
+# Fundo
+fundo = pygame.image.load("Assets/Imagens/fundo_inicio.png").convert()
 fundo = pygame.transform.scale(fundo, (WIDTH, HEIGHT))
 
-entregador_img = pygame.image.load('Assets/Imagens/Entregador.png').convert_alpha()
-cliente_img = pygame.image.load('Assets/Imagens/Cliente.png').convert_alpha()
+# Sons
+som_yay = pygame.mixer.Sound("Assets/Sons/Yay.mp3")
+musica_fundo = "Assets/Sons/Telainicio.mp3"
 
-# Redimensiona se quiser
-entregador_img = pygame.transform.scale(entregador_img, (150, 150))
-cliente_img = pygame.transform.scale(cliente_img, (130, 130))
-
-# Som
-try:
-    pygame.mixer.music.load('Assets/Sons/Trilhasonora.mp3')
-    pygame.mixer.music.play(-1)
-except:
-    pass
-
-# Função tela próximo nível
+# Função tela
 def prox_nivel():
     running = True
+    musica_tocando = False
+    tempo_inicio = pygame.time.get_ticks()
 
+    # toca o yay assim que a tela abre
+    som_yay.play()
+
+    # Fontes
     title_font = pygame.font.SysFont(None, 72)
-    text_font = pygame.font.SysFont(None, 36)
+    text_font = pygame.font.SysFont(None, 38)
     small_font = pygame.font.SysFont(None, 28)
 
-    title = title_font.render("Pedido entregue!", True, AMARELO)
+    titulo = title_font.render("ENTREGA CONCLUÍDA!", True, AMARELO)
 
     mensagens = [
-        "Você desviou dos carros e chegou ao cliente.",
-        "A entrega foi concluída com sucesso!",
-        "Prepare-se para a próxima corrida pela cidade."
+        "Parabéns!",
+        "Você desviou dos carros com sucesso.",
+        "Prepare-se para a próxima entrega!"
     ]
 
-    instrucao = small_font.render("Pressione qualquer tecla ou clique para continuar.", True, BRANCO)
+    instrucao = small_font.render(
+        "Pressione qualquer tecla para continuar",
+        True,
+        BRANCO
+    )
+
+    clock = pygame.time.Clock()
 
     while running:
+        agora = pygame.time.get_ticks()
+
+        # depois de 1 segundo, inicia a música
+        if not musica_tocando and agora - tempo_inicio >= 1000:
+            pygame.mixer.music.load(musica_fundo)
+            pygame.mixer.music.play(-1)
+            musica_tocando = True
+
+        # desenha a tela imediatamente, sem delay
         window.blit(fundo, (0, 0))
 
-        # Faixa escura para destacar o texto
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 120))
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(120)
+        overlay.fill(PRETO)
         window.blit(overlay, (0, 0))
 
-        # Título
-        window.blit(title, (WIDTH // 2 - title.get_width() // 2, 60))
+        window.blit(
+            titulo,
+            (WIDTH // 2 - titulo.get_width() // 2, 100)
+        )
 
-        # Texto central
         for i, msg in enumerate(mensagens):
-            text = text_font.render(msg, True, BRANCO)
-            window.blit(text, (WIDTH // 2 - text.get_width() // 2, 210 + i * 45))
+            texto = text_font.render(msg, True, BRANCO)
+            window.blit(
+                texto,
+                (WIDTH // 2 - texto.get_width() // 2, 250 + i * 50)
+            )
 
-        window.blit(instrucao, (WIDTH // 2 - instrucao.get_width() // 2, HEIGHT - 60))
+        window.blit(
+            instrucao,
+            (WIDTH // 2 - instrucao.get_width() // 2, HEIGHT - 80)
+        )
 
         pygame.display.flip()
 
@@ -74,7 +93,12 @@ def prox_nivel():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
+
             if event.type == pygame.KEYUP or event.type == pygame.MOUSEBUTTONUP:
                 running = False
 
+        clock.tick(60)
+
 prox_nivel()
+
+pygame.quit()
