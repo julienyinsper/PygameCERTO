@@ -56,6 +56,7 @@ def fase1():
         som_comeco = None
         som_gameover = None
 
+    
     WIDTH, HEIGHT = 900, 600
     window = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Entregando")
