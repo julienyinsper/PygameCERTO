@@ -11,7 +11,7 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Entregando")
 
 # Carrega imagem de fundo
-imagem_fundo = pygame.image.load('Assets/Imagens/fundo_inicio.png').convert()
+imagem_fundo = pygame.image.load('Assets/Imagens/Ganhou.png').convert()
 imagem_fundo = pygame.transform.scale(imagem_fundo, (WIDTH, HEIGHT))
 
 
