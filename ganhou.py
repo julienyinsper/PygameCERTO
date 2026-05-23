@@ -3,6 +3,7 @@ import random
 import time
 
 pygame.init()
+pygame.mixer.init()
 
 # Gera tela principal
 WIDTH = 900
@@ -10,16 +11,28 @@ HEIGHT = 600
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Entregando")
 
+clock = pygame.time.Clock()
+
 # Carrega imagem de fundo
 imagem_fundo = pygame.image.load('Assets/Imagens/Ganhou.png').convert()
 imagem_fundo = pygame.transform.scale(imagem_fundo, (WIDTH, HEIGHT))
+
+# Sons
+som_ganhou = pygame.mixer.Sound("Assets/Sons/Ganhou.mp3")
+musica_fundo = "Assets/Sons/Telainicio.mp3"
 
 
 # Função para mostrar a tela de vitória
 def entrega_concluida():
 
-    # Fundo parado
-    window.blit(imagem_fundo, (0, 0))
+    # TOCA O SOM DE VITÓRIA
+    som_ganhou.play()
+
+    # Marca o tempo inicial
+    tempo_inicio = pygame.time.get_ticks()
+
+    # Controla se a música já começou
+    musica_iniciada = False
 
     # Título
     title_font = pygame.font.SysFont(None, 72)
@@ -41,15 +54,7 @@ def entrega_concluida():
         (255, 255, 255)
     )
 
-    # Desenha título
-    window.blit(
-        title,
-        (WIDTH // 2 - title.get_width() // 2, HEIGHT // 4)
-    )
-
-    pygame.display.flip()
-
-    # Texto aparecendo letra por letra
+    # Texto animado
     for i, line in enumerate(acontecimento):
 
         rendered_line = ""
@@ -64,15 +69,31 @@ def entrega_concluida():
                 (255, 255, 255)
             )
 
-            # Fundo parado
+            # Eventos durante animação
+            for event in pygame.event.get():
+
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+            # Começa música após 2 segundos
+            if not musica_iniciada and pygame.time.get_ticks() - tempo_inicio >= 2000:
+
+                pygame.mixer.music.load(musica_fundo)
+                pygame.mixer.music.play(-1)
+
+                musica_iniciada = True
+
+            # Fundo
             window.blit(imagem_fundo, (0, 0))
 
+            # Título
             window.blit(
                 title,
                 (WIDTH // 2 - title.get_width() // 2, HEIGHT // 4)
             )
 
-            # Mostra linhas anteriores
+            # Linhas anteriores
             for j in range(i):
 
                 previous_text = font.render(
@@ -108,9 +129,7 @@ def entrega_concluida():
             )
 
             pygame.display.flip()
-            pygame.time.wait(50)
-
-    pygame.display.flip()
+            clock.tick(60)
 
     # Espera clique ou tecla
     waiting = True
@@ -125,6 +144,49 @@ def entrega_concluida():
 
             if event.type == pygame.KEYUP or event.type == pygame.MOUSEBUTTONUP:
                 waiting = False
+
+        # Garante que a música comece mesmo se ainda não começou
+        if not musica_iniciada and pygame.time.get_ticks() - tempo_inicio >= 2000:
+
+            pygame.mixer.music.load(musica_fundo)
+            pygame.mixer.music.play(-1)
+
+            musica_iniciada = True
+
+        # Redesenha tela
+        window.blit(imagem_fundo, (0, 0))
+
+        window.blit(
+            title,
+            (WIDTH // 2 - title.get_width() // 2, HEIGHT // 4)
+        )
+
+        for j, linha in enumerate(acontecimento):
+
+            texto = font.render(
+                linha,
+                True,
+                (255, 255, 255)
+            )
+
+            window.blit(
+                texto,
+                (
+                    WIDTH // 2 - texto.get_width() // 2,
+                    HEIGHT // 3 + 40 * (j + 1)
+                )
+            )
+
+        window.blit(
+            inicio,
+            (
+                WIDTH // 2 - inicio.get_width() // 2,
+                HEIGHT - 80
+            )
+        )
+
+        pygame.display.flip()
+        clock.tick(60)
 
     import jogo
 
