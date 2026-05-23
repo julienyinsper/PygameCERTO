@@ -2,18 +2,22 @@
 import pygame
 import random
 import os
+import sys
 
 def fase3():
     pygame.init()
-    pygame.mixer.init()
+
+    try:
+        pygame.mixer.init()
+    except:
+        pass
 
     LARGURA = 900
     ALTURA = 600
-    FPS = 60
+    FPS = 30
 
     tela = pygame.display.set_mode((LARGURA, ALTURA))
     pygame.display.set_caption("Entregando - Fase 3")
-
     clock = pygame.time.Clock()
 
     pasta_imagens = os.path.join("Assets", "Imagens")
@@ -34,7 +38,6 @@ def fase3():
 
     def carregar_som(nome):
         caminho = os.path.join(pasta_sons, nome)
-
         try:
             return pygame.mixer.Sound(caminho)
         except:
@@ -47,17 +50,16 @@ def fase3():
     # ---------- Imagens ----------
     fundo = carregar_imagem("Rua.png", (LARGURA, ALTURA), alpha=False)
 
-    fundo_y1 = 0
-    fundo_y2 = -ALTURA
-    velocidade_fundo = 5
+    fundo_y = 0
+    velocidade_fundo = 10
 
-    img_entregador = carregar_imagem("Entregador.png", (90, 110))
-    img_cliente = carregar_imagem("Cliente.png", (100, 120))
+    img_entregador = carregar_imagem("Entregador.png", (100, 70))
+    img_cliente = carregar_imagem("Cliente.png", (120, 80))
 
     imagens_carros = [
-        carregar_imagem("Carro_amarelo.png", (90, 150)),
-        carregar_imagem("Carro_azul.png", (90, 150)),
-        carregar_imagem("Carro_vermelho.png", (90, 150))
+        carregar_imagem("Carro_amarelo.png", (80, 140)),
+        carregar_imagem("Carro_azul.png", (80, 140)),
+        carregar_imagem("Carro_vermelho.png", (80, 140))
     ]
 
     tela_ganhou = carregar_imagem("Ganhou.png", (LARGURA, ALTURA), alpha=False)
@@ -70,70 +72,54 @@ def fase3():
 
     try:
         pygame.mixer.music.load(os.path.join(pasta_sons, "Trilhasonora.mp3"))
-        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
     except:
         pass
 
-    # ---------- Variáveis dos carros ----------
-    faixas = [250, 360, 480, 600]
-    distancia_minima_carros = 230
+    # ---------- Rua ----------
+    ROAD_LEFT = 300
+    ROAD_RIGHT = 680
+    ROAD_CENTER = (ROAD_LEFT + ROAD_RIGHT) // 2
 
-    def posicao_segura_carro(grupo_carros):
-        tentativa = 0
+    LANE_XS = [
+        ROAD_LEFT + 55,
+        ROAD_CENTER,
+        ROAD_RIGHT - 55
+    ]
 
-        while tentativa < 100:
-            x = random.choice(faixas)
-            y = random.randint(-1000, -150)
+    # Velocidade da fase 3:
+    # fase 2 era 10 a 15, então aqui está um pouco mais rápido.
+    velocidades_faixas = {}
 
-            pode_colocar = True
+    for lane_x in LANE_XS:
+        velocidades_faixas[lane_x] = random.randint(12, 17)
 
-            for carro in grupo_carros:
-                mesma_faixa = abs(carro.rect.centerx - x) < 20
-                muito_perto = abs(carro.rect.y - y) < distancia_minima_carros
-
-                if mesma_faixa and muito_perto:
-                    pode_colocar = False
-                    break
-
-            if pode_colocar:
-                return x, y
-
-            tentativa += 1
-
-        return random.choice(faixas), random.randint(-1200, -900)
+    DISTANCIA_ENTRE_CARROS = 420
 
     # ---------- Classes ----------
     class Entregador(pygame.sprite.Sprite):
         def __init__(self):
-            pygame.sprite.Sprite.__init__(self)
+            super().__init__()
 
             self.image = img_entregador
             self.rect = self.image.get_rect()
-            self.rect.centerx = LARGURA // 2
+            self.rect.centerx = ROAD_CENTER
             self.rect.bottom = ALTURA - 20
-            self.velocidade = 7
+
+            self.speedx = 0
+            self.speedy = 0
+            self.mask = pygame.mask.from_surface(self.image)
 
         def update(self):
-            teclas = pygame.key.get_pressed()
+            self.rect.x += self.speedx
+            self.rect.y += self.speedy
 
-            if teclas[pygame.K_LEFT] or teclas[pygame.K_a]:
-                self.rect.x -= self.velocidade
+            if self.rect.left < ROAD_LEFT:
+                self.rect.left = ROAD_LEFT
 
-            if teclas[pygame.K_RIGHT] or teclas[pygame.K_d]:
-                self.rect.x += self.velocidade
-
-            if teclas[pygame.K_UP] or teclas[pygame.K_w]:
-                self.rect.y -= self.velocidade
-
-            if teclas[pygame.K_DOWN] or teclas[pygame.K_s]:
-                self.rect.y += self.velocidade
-
-            if self.rect.left < 0:
-                self.rect.left = 0
-
-            if self.rect.right > LARGURA:
-                self.rect.right = LARGURA
+            if self.rect.right > ROAD_RIGHT:
+                self.rect.right = ROAD_RIGHT
 
             if self.rect.top < 0:
                 self.rect.top = 0
@@ -142,48 +128,64 @@ def fase3():
                 self.rect.bottom = ALTURA
 
     class Carro(pygame.sprite.Sprite):
-        def __init__(self, grupo_carros):
-            pygame.sprite.Sprite.__init__(self)
+        def __init__(self, lane_x, posicao_na_faixa):
+            super().__init__()
 
-            self.grupo_carros = grupo_carros
+            self.lane_x = lane_x
+            self.posicao_na_faixa = posicao_na_faixa
+
             self.image = random.choice(imagens_carros)
             self.rect = self.image.get_rect()
+            self.mask = pygame.mask.from_surface(self.image)
 
-            self.rect.centerx, self.rect.y = posicao_segura_carro(self.grupo_carros)
+            self.speedy = velocidades_faixas[self.lane_x]
 
-            # Carros mais lentos
-            self.velocidade = random.randint(5, 9)
+            self.rect.centerx = self.lane_x
+            self.rect.y = -200 - self.posicao_na_faixa * DISTANCIA_ENTRE_CARROS
+
+        def reset(self):
+            self.image = random.choice(imagens_carros)
+            self.rect = self.image.get_rect()
+            self.mask = pygame.mask.from_surface(self.image)
+
+            self.speedy = velocidades_faixas[self.lane_x]
+            self.rect.centerx = self.lane_x
+
+            # Volta bem para cima, mantendo distância.
+            self.rect.y = random.randint(-900, -300)
+
+            # Verifica se tem outro carro perto na mesma faixa.
+            for outro_carro in grupo_carros:
+                if outro_carro != self and outro_carro.lane_x == self.lane_x:
+                    while abs(self.rect.y - outro_carro.rect.y) < DISTANCIA_ENTRE_CARROS:
+                        self.rect.y -= DISTANCIA_ENTRE_CARROS
 
         def update(self):
-            self.rect.y += self.velocidade
+            self.rect.y += self.speedy
 
             if self.rect.top > ALTURA:
-                self.image = random.choice(imagens_carros)
-                self.rect = self.image.get_rect()
-
-                self.rect.centerx, self.rect.y = posicao_segura_carro(self.grupo_carros)
-
-                self.velocidade = random.randint(5, 9)
+                self.reset()
 
     class Cliente(pygame.sprite.Sprite):
         def __init__(self):
-            pygame.sprite.Sprite.__init__(self)
+            super().__init__()
 
             self.image = img_cliente
             self.rect = self.image.get_rect()
-            self.rect.centerx = LARGURA // 2
+            self.rect.centerx = ROAD_CENTER
 
-            # Quanto mais negativo, mais tempo a fase dura
-            self.rect.top = -3000
+            # Quanto mais negativo, mais tempo a fase dura.
+            self.rect.top = -3500
 
-            self.velocidade = 3
+            self.speedy = 3
 
         def update(self):
-            self.rect.y += self.velocidade
+            self.rect.y += self.speedy
 
-            if self.rect.top >= 20:
-                self.rect.top = 20
+            if self.rect.top >= 10:
+                self.rect.top = 10
 
+    # ---------- Tela final ----------
     def mostrar_tela_final(imagem, som=None):
         pygame.mixer.music.stop()
         tocar_som(som)
@@ -196,7 +198,7 @@ def fase3():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    return "sair"
+                    sys.exit()
 
                 if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                     esperando = False
@@ -217,8 +219,6 @@ def fase3():
 
             pygame.display.update()
 
-        return "continuar"
-
     # ---------- Grupos ----------
     todos_sprites = pygame.sprite.Group()
     grupo_carros = pygame.sprite.Group()
@@ -229,10 +229,12 @@ def fase3():
     todos_sprites.add(jogador)
     todos_sprites.add(cliente)
 
-    for i in range(7):
-        carro = Carro(grupo_carros)
-        todos_sprites.add(carro)
-        grupo_carros.add(carro)
+    # Dois carros por faixa, mas espaçados.
+    for lane_x in LANE_XS:
+        for posicao in range(2):
+            carro = Carro(lane_x, posicao)
+            todos_sprites.add(carro)
+            grupo_carros.add(carro)
 
     # ---------- Loop principal ----------
     rodando = True
@@ -244,30 +246,49 @@ def fase3():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                rodando = False
+                pygame.quit()
+                sys.exit()
 
-        # Movimento da rua
-        fundo_y1 += velocidade_fundo
-        fundo_y2 += velocidade_fundo
+        teclas = pygame.key.get_pressed()
 
-        if fundo_y1 >= ALTURA:
-            fundo_y1 = -ALTURA
+        jogador.speedx = 0
+        jogador.speedy = 0
 
-        if fundo_y2 >= ALTURA:
-            fundo_y2 = -ALTURA
+        if teclas[pygame.K_LEFT] or teclas[pygame.K_a]:
+            jogador.speedx = -7
+
+        if teclas[pygame.K_RIGHT] or teclas[pygame.K_d]:
+            jogador.speedx = 7
+
+        if teclas[pygame.K_UP] or teclas[pygame.K_w]:
+            jogador.speedy = -7
+
+        if teclas[pygame.K_DOWN] or teclas[pygame.K_s]:
+            jogador.speedy = 7
 
         todos_sprites.update()
 
-        if pygame.sprite.spritecollide(jogador, grupo_carros, False):
+        # Movimento da rua
+        fundo_y += velocidade_fundo
+
+        if fundo_y >= ALTURA:
+            fundo_y = 0
+
+        # Colisão com carros
+        if pygame.sprite.spritecollide(jogador, grupo_carros, False, pygame.sprite.collide_mask):
             perdeu = True
             rodando = False
+            continue
 
+        # Vitória ao encostar no cliente
         if jogador.rect.colliderect(cliente.rect):
             ganhou = True
             rodando = False
+            continue
 
-        tela.blit(fundo, (0, fundo_y1))
-        tela.blit(fundo, (0, fundo_y2))
+        # Desenho do fundo em movimento
+        tela.blit(fundo, (0, fundo_y))
+        tela.blit(fundo, (0, fundo_y - ALTURA))
 
         todos_sprites.draw(tela)
 
@@ -277,16 +298,13 @@ def fase3():
             True,
             (255, 255, 255)
         )
-
         tela.blit(texto, (20, 20))
 
         pygame.display.update()
 
     if perdeu:
-        resultado = mostrar_tela_final(tela_perdeu, som_perdeu)
-
-        if resultado == "continuar":
-            fase3()
+        mostrar_tela_final(tela_perdeu, som_perdeu)
+        fase3()
 
     elif ganhou:
         tocar_som(som_yay)
@@ -295,4 +313,5 @@ def fase3():
     pygame.quit()
 
 
-fase3()
+if __name__ == "__main__":
+    fase3()
