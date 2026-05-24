@@ -1,35 +1,8 @@
-
 import pygame
 import random
 import sys
-
-
-def mostrar_derrota(window, WIDTH, HEIGHT, background):
-    fonte_titulo = pygame.font.SysFont(None, 72)
-    fonte_texto = pygame.font.SysFont(None, 36)
-
-    titulo = fonte_titulo.render("Você perdeu!", True, (255, 165, 0))
-    msg1 = fonte_texto.render("Um carro te atingiu.", True, (255, 255, 255))
-    msg2 = fonte_texto.render(
-        "Pressione qualquer tecla ou clique para continuar.",
-        True,
-        (255, 255, 255)
-    )
-
-    window.blit(background, (0, 0))
-    window.blit(titulo, (WIDTH // 2 - titulo.get_width() // 2, HEIGHT // 4))
-    window.blit(msg1, (WIDTH // 2 - msg1.get_width() // 2, HEIGHT // 2))
-    window.blit(msg2, (WIDTH // 2 - msg2.get_width() // 2, HEIGHT // 2 + 50))
-    pygame.display.flip()
-
-    esperando = True
-    while esperando:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
-                esperando = False
+from perdeu import perdeu
+from tela_prox_nivel import tela_prox_nivel
 
 
 def fase1():
@@ -37,31 +10,30 @@ def fase1():
 
     try:
         pygame.mixer.init()
-
-        # Música de fundo da fase
-        pygame.mixer.music.load("Assets/Sons/Trilhasonora.mp3")
-        pygame.mixer.music.set_volume(0.3)
-        pygame.mixer.music.play(-1)
-
-        # Som de começo da fase: "Let's go"
-        som_comeco = pygame.mixer.Sound("Assets/Sons/Comeco.mp3")
-        som_comeco.set_volume(0.8)
-        som_comeco.play()
-
-        # Som de game over
-        som_gameover = pygame.mixer.Sound("Assets/Sons/Gameover.mp3")
-        som_gameover.set_volume(0.8)
-
     except:
-        som_comeco = None
-        som_gameover = None
+        pass
 
-    
     WIDTH, HEIGHT = 900, 600
     window = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Entregando")
     clock = pygame.time.Clock()
     FPS = 30
+
+    # Música de fundo
+    try:
+        pygame.mixer.music.load("Assets/Sons/Trilhasonora.mp3")
+        pygame.mixer.music.set_volume(0.3)
+        pygame.mixer.music.play(-1)
+    except:
+        pass
+
+    # Som de começo da fase
+    try:
+        som_comeco = pygame.mixer.Sound("Assets/Sons/Comeco.mp3")
+        som_comeco.set_volume(0.8)
+        som_comeco.play()
+    except:
+        pass
 
     # Fundo fixo
     imagem_fundo = pygame.image.load("Assets/Imagens/Rua.png").convert()
@@ -87,7 +59,7 @@ def fase1():
     cliente_rect = imagem_cliente.get_rect()
     cliente_rect.midtop = (ROAD_CENTER, 10)
 
-    # Área de entrega pequena
+    # Área de entrega
     zona_entrega = pygame.Rect(ROAD_CENTER - 45, 0, 90, 85)
 
     # Entregador
@@ -162,7 +134,6 @@ def fase1():
         all_cars.add(carro)
 
     game = True
-    resultado = 0
 
     while game:
         clock.tick(FPS)
@@ -172,7 +143,6 @@ def fase1():
                 pygame.quit()
                 sys.exit()
 
-        # Movimento contínuo pelo teclado
         teclas = pygame.key.get_pressed()
         jogador.speedx = 0
         jogador.speedy = 0
@@ -190,21 +160,18 @@ def fase1():
 
         # Colisão com carros: derrota
         if pygame.sprite.spritecollide(jogador, all_cars, False, pygame.sprite.collide_mask):
-            pygame.mixer.music.stop()
+            try:
+                pygame.mixer.music.stop()
+            except:
+                pass
 
-            if som_gameover:
-                som_gameover.play()
-
-            mostrar_derrota(window, WIDTH, HEIGHT, imagem_fundo)
-            resultado = 0
-            game = False
-            continue
+            perdeu()
+            return 0
 
         # Vitória: quando o jogador toca no cliente / zona de entrega
         if jogador.rect.colliderect(zona_entrega):
-            resultado = 3
-            game = False
-            continue
+            tela_prox_nivel()
+            return 1
 
         # Desenho
         window.blit(imagem_fundo, (0, 0))
@@ -212,8 +179,7 @@ def fase1():
         all_sprites.draw(window)
         pygame.display.flip()
 
-    pygame.quit()
-    return resultado
+    return 0
 
 
 if __name__ == "__main__":

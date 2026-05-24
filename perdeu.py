@@ -2,7 +2,11 @@ import pygame
 import sys
 
 pygame.init()
-pygame.mixer.init()
+
+try:
+    pygame.mixer.init()
+except:
+    pass
 
 # Tela
 WIDTH = 900
@@ -16,8 +20,13 @@ imagem_fundo = pygame.image.load('Assets/Imagens/Perdeu.png').convert()
 imagem_fundo = pygame.transform.scale(imagem_fundo, (WIDTH, HEIGHT))
 
 # Sons
-som_perdeu = pygame.mixer.Sound("Assets/Sons/Perdeu.mp3")
+try:
+    som_perdeu = pygame.mixer.Sound("Assets/Sons/Perdeu.mp3")
+except:
+    som_perdeu = None
+
 musica_fundo = "Assets/Sons/Telainicio.mp3"
+
 
 def desenhar_tela():
     window.blit(imagem_fundo, (0, 0))
@@ -27,7 +36,7 @@ def desenhar_tela():
     font_inicio = pygame.font.SysFont(None, 30)
 
     title = title_font.render("Entrega atrasada!", True, (255, 215, 0))
-    linha2 = font.render("A entrega nao chegou ao cliente.", True, (255, 255, 255))
+    linha2 = font.render("A entrega não chegou ao cliente.", True, (255, 255, 255))
     inicio = font_inicio.render("Clique para jogar novamente.", True, (255, 255, 255))
 
     window.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 4))
@@ -36,14 +45,13 @@ def desenhar_tela():
 
     pygame.display.flip()
 
-def perdeu_entrega():
-    # Mostra a tela primeiro
+
+def perdeu():
     desenhar_tela()
 
-    # Toca o som de perdeu
-    som_perdeu.play()
+    if som_perdeu is not None:
+        som_perdeu.play()
 
-    # Espera 2 segundos sem travar a janela
     inicio_tempo = pygame.time.get_ticks()
     musica_iniciada = False
 
@@ -57,13 +65,17 @@ def perdeu_entrega():
             if event.type == pygame.KEYUP or event.type == pygame.MOUSEBUTTONUP:
                 waiting = False
 
-        # Depois de 2 segundos, começa a música da tela inicial
         if not musica_iniciada and pygame.time.get_ticks() - inicio_tempo >= 2000:
-            pygame.mixer.music.load(musica_fundo)
-            pygame.mixer.music.play(-1)
+            try:
+                pygame.mixer.music.load(musica_fundo)
+                pygame.mixer.music.play(-1)
+            except:
+                pass
             musica_iniciada = True
 
         desenhar_tela()
         clock.tick(60)
 
-perdeu_entrega()
+
+if __name__ == "__main__":
+    perdeu()

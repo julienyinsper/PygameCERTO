@@ -1,7 +1,12 @@
 import pygame
+import sys
 
 pygame.init()
-pygame.mixer.init()
+
+try:
+    pygame.mixer.init()
+except:
+    pass
 
 # Configuração da tela
 WIDTH = 900
@@ -10,7 +15,7 @@ HEIGHT = 600
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Entregando")
 
-#Cores
+# Cores
 BRANCO = (255, 255, 255)
 AMARELO = (255, 215, 0)
 PRETO = (0, 0, 0)
@@ -20,17 +25,22 @@ fundo = pygame.image.load("Assets/Imagens/Passounivel.png").convert()
 fundo = pygame.transform.scale(fundo, (WIDTH, HEIGHT))
 
 # Sons
-som_yay = pygame.mixer.Sound("Assets/Sons/Yay.mp3")
+try:
+    som_yay = pygame.mixer.Sound("Assets/Sons/Yay.mp3")
+except:
+    som_yay = None
+
 musica_fundo = "Assets/Sons/Telainicio.mp3"
 
-# Função tela
-def prox_nivel():
+
+def tela_prox_nivel():
     running = True
     musica_tocando = False
     tempo_inicio = pygame.time.get_ticks()
 
     # toca o yay assim que a tela abre
-    som_yay.play()
+    if som_yay is not None:
+        som_yay.play()
 
     # Fontes
     title_font = pygame.font.SysFont(None, 72)
@@ -46,7 +56,7 @@ def prox_nivel():
     ]
 
     instrucao = small_font.render(
-        "Pressione qualquer tecla para continuar",
+        "Pressione qualquer tecla ou clique para continuar",
         True,
         BRANCO
     )
@@ -56,13 +66,16 @@ def prox_nivel():
     while running:
         agora = pygame.time.get_ticks()
 
-        # depois de 1 segundo, inicia a música
-        if not musica_tocando and agora - tempo_inicio >= 1000:
-            pygame.mixer.music.load(musica_fundo)
-            pygame.mixer.music.play(-1)
+        # depois de 2 segundos, inicia a música
+        if not musica_tocando and agora - tempo_inicio >= 2000:
+            try:
+                pygame.mixer.music.load(musica_fundo)
+                pygame.mixer.music.play(-1)
+            except:
+                pass
             musica_tocando = True
 
-        # desenha a tela imediatamente, sem delay
+        # desenha a tela
         window.blit(fundo, (0, 0))
 
         overlay = pygame.Surface((WIDTH, HEIGHT))
@@ -92,13 +105,13 @@ def prox_nivel():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                exit()
+                sys.exit()
 
             if event.type == pygame.KEYUP or event.type == pygame.MOUSEBUTTONUP:
                 running = False
 
         clock.tick(60)
 
-prox_nivel()
 
-pygame.quit()
+if __name__ == "__main__":
+    tela_prox_nivel()
