@@ -2,35 +2,8 @@
 import pygame
 import random
 import sys
-
-
-def mostrar_derrota_fase2(window, WIDTH, HEIGHT, background):
-    fonte_titulo = pygame.font.SysFont(None, 72)
-    fonte_texto = pygame.font.SysFont(None, 36)
-
-    titulo = fonte_titulo.render("Você perdeu!", True, (255, 165, 0))
-    msg1 = fonte_texto.render("Um carro te atingiu na fase 2.", True, (255, 255, 255))
-    msg2 = fonte_texto.render(
-        "Pressione qualquer tecla ou clique para continuar.",
-        True,
-        (255, 255, 255)
-    )
-
-    window.blit(background, (0, 0))
-    window.blit(titulo, (WIDTH // 2 - titulo.get_width() // 2, HEIGHT // 4))
-    window.blit(msg1, (WIDTH // 2 - msg1.get_width() // 2, HEIGHT // 2))
-    window.blit(msg2, (WIDTH // 2 - msg2.get_width() // 2, HEIGHT // 2 + 50))
-    pygame.display.flip()
-
-    esperando = True
-    while esperando:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
-                esperando = False
+from perdeu import perdeu
+from tela_prox_nivel import tela_prox_nivel
 
 
 def fase2():
@@ -45,9 +18,6 @@ def fase2():
     clock = pygame.time.Clock()
 
     # Sons
-    som_comeco = None
-    som_gameover = None
-
     try:
         pygame.mixer.init()
 
@@ -59,9 +29,6 @@ def fase2():
         som_comeco.set_volume(0.8)
         som_comeco.play()
 
-        som_gameover = pygame.mixer.Sound("Assets/Sons/Gameover.mp3")
-        som_gameover.set_volume(0.8)
-
     except:
         print("Algum som não carregou, mas o jogo vai continuar.")
 
@@ -70,7 +37,7 @@ def fase2():
     imagem_fundo = pygame.transform.scale(imagem_fundo, (WIDTH, HEIGHT))
 
     fundo_y = 0
-    velocidade_fundo = 8
+    velocidade_fundo = 5
 
     # Limites da rua
     ROAD_LEFT = 300
@@ -89,10 +56,7 @@ def fase2():
     cliente_height = 80
 
     imagem_cliente = pygame.image.load("Assets/Imagens/Cliente.png").convert_alpha()
-    imagem_cliente = pygame.transform.scale(
-        imagem_cliente,
-        (cliente_width, cliente_height)
-    )
+    imagem_cliente = pygame.transform.scale(imagem_cliente, (cliente_width, cliente_height))
 
     cliente_rect = imagem_cliente.get_rect()
     cliente_rect.midtop = (ROAD_CENTER, 10)
@@ -104,10 +68,7 @@ def fase2():
     entregador_height = 70
 
     imagem_entregador = pygame.image.load("Assets/Imagens/Entregador.png").convert_alpha()
-    imagem_entregador = pygame.transform.scale(
-        imagem_entregador,
-        (entregador_width, entregador_height)
-    )
+    imagem_entregador = pygame.transform.scale(imagem_entregador, (entregador_width, entregador_height))
 
     # Carros
     CAR_WIDTH = 80
@@ -138,13 +99,10 @@ def fase2():
 
             if self.rect.left < ROAD_LEFT:
                 self.rect.left = ROAD_LEFT
-
             if self.rect.right > ROAD_RIGHT:
                 self.rect.right = ROAD_RIGHT
-
             if self.rect.top < 0:
                 self.rect.top = 0
-
             if self.rect.bottom > HEIGHT:
                 self.rect.bottom = HEIGHT
 
@@ -160,13 +118,10 @@ def fase2():
         def reset(self):
             self.rect.centerx = self.lane_x
             self.rect.y = random.randint(-800, -CAR_HEIGHT)
-
-            # Carros mais rápidos na fase 2
-            self.speedy = random.randint(10, 15)
+            self.speedy = random.randint(7, 10)
 
         def update(self):
             self.rect.y += self.speedy
-
             if self.rect.top > HEIGHT:
                 self.reset()
 
@@ -201,7 +156,6 @@ def fase2():
                 pygame.quit()
                 sys.exit()
 
-        # Movimento contínuo pelo teclado
         teclas = pygame.key.get_pressed()
 
         jogador.speedx = 0
@@ -209,13 +163,10 @@ def fase2():
 
         if teclas[pygame.K_LEFT]:
             jogador.speedx = -7
-
         if teclas[pygame.K_RIGHT]:
             jogador.speedx = 7
-
         if teclas[pygame.K_UP]:
             jogador.speedy = -7
-
         if teclas[pygame.K_DOWN]:
             jogador.speedy = 7
 
@@ -223,34 +174,23 @@ def fase2():
 
         # Movimento da rua
         fundo_y += velocidade_fundo
-
         if fundo_y >= HEIGHT:
             fundo_y = 0
 
-        # Colisão com carros
+        # Colisão com carros = perdeu
         if pygame.sprite.spritecollide(jogador, all_cars, False, pygame.sprite.collide_mask):
             pygame.mixer.music.stop()
+            perdeu()
+            return 0
 
-            if som_gameover:
-                som_gameover.play()
-
-            mostrar_derrota_fase2(window, WIDTH, HEIGHT, imagem_fundo)
-
-            resultado = 0
-            game = False
-            continue
-
-        # Vitória ao chegar no cliente
+        # Vitória = passa para próxima tela
         if jogador.rect.colliderect(zona_entrega):
-            resultado = 3
-            game = False
-            continue
+            tela_prox_nivel()
+            return 1
 
-        # Desenho do fundo em movimento
+        # Desenho
         window.blit(imagem_fundo, (0, fundo_y))
         window.blit(imagem_fundo, (0, fundo_y - HEIGHT))
-
-        # Desenho dos personagens
         window.blit(imagem_cliente, cliente_rect)
         all_sprites.draw(window)
 
@@ -260,7 +200,4 @@ def fase2():
 
 
 if __name__ == "__main__":
-    print("Começando fase 2...")
-    resultado = fase2()
-    print("Fase 2 terminou com resultado:", resultado)
-    
+    fase2()
