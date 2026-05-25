@@ -97,6 +97,6 @@ def inicio():
 
     return
 
-# Executa a tela inicial se o arquivo for aberto diretamente
+# Executa se o arquivo for aberto diretamente
 if __name__ == "__main__":
     inicio()

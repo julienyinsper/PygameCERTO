@@ -86,6 +86,6 @@ def ganhou():
     # Importa o jogo principal ao sair da tela de vitória
     import jogo
 
-# Executa a tela inicial se o arquivo for aberto diretamente
+# Executa se o arquivo for aberto diretamente
 if __name__ == "__main__":
     ganhou()

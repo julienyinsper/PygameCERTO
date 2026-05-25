@@ -123,6 +123,6 @@ def tela_prox_nivel():
         
         clock.tick(60)
 
-# Executa a função principal se o arquivo for iniciado diretamente
+# Executa se o arquivo for iniciado diretamente
 if __name__ == "__main__":
     tela_prox_nivel()

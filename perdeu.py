@@ -89,6 +89,6 @@ def perdeu():
         desenhar_tela()
         clock.tick(60)
 
-# Executa a função principal ao iniciar o arquivo
+# Executa ao chamar o arquivo diretamente
 if __name__ == "__main__":
     perdeu()

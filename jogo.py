@@ -56,6 +56,6 @@ def main():
     # Fecha o programa
     sys.exit()
 
-# Executa a função principal se o arquivo for iniciado diretamente
+# Executa se o arquivo for iniciado diretamente
 if __name__ == "__main__":
     main()
