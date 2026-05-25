@@ -10,7 +10,7 @@ WIDTH = 480 # Largura da tela
 HEIGHT = 700 # Altura da tela
 FPS = 60 # Frames por segundo
 
-# Define tamanhos
+# Define tamanhos do entregador e dos carros
 DELIVERY_WIDTH = 50
 DELIVERY_HEIGHT = 80
 CAR_WIDTH = 70
@@ -24,7 +24,7 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
-# Estados para controle do fluxo da aplicação
+# Estados para controle do jogo
 INIT = 0
 GAME = 1
 QUIT = 2

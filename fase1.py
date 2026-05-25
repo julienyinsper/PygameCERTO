@@ -1,18 +1,22 @@
+# Importando bibliotecas
 import pygame
 import random
 import sys
+# Importando telas
 from perdeu import perdeu
 from tela_prox_nivel import tela_prox_nivel
 
-
+# Função principal fase 1 
 def fase1():
+    # Inicia o Pygame
     pygame.init()
-
+    # Inicia o sistema de áudio
     try:
         pygame.mixer.init()
     except:
+        # Se falhar, o jogo continua normalmente
         pass
-
+    # Configurações da tela
     WIDTH, HEIGHT = 900, 600
     window = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Entregando")
@@ -62,7 +66,7 @@ def fase1():
     # Área de entrega
     zona_entrega = pygame.Rect(ROAD_CENTER - 45, 0, 90, 85)
 
-    # Entregador
+    # Entregador configurações
     entregador_width = 100
     entregador_height = 70
     imagem_entregador = pygame.image.load("Assets/Imagens/Entregador.png").convert_alpha()
@@ -73,11 +77,12 @@ def fase1():
     CAR_HEIGHT = 140
     car_colors = ["azul", "vermelho", "amarelo"]
     car_images = {}
-
+    # Função carros coloridos
     for color in car_colors:
         img = pygame.image.load(f"Assets/Imagens/Carro_{color}.png").convert_alpha()
         car_images[color] = pygame.transform.scale(img, (CAR_WIDTH, CAR_HEIGHT))
-
+    
+    #Classes para entregador e carros
     class Entregador(pygame.sprite.Sprite):
         def __init__(self, img):
             super().__init__()
@@ -90,9 +95,10 @@ def fase1():
             self.mask = pygame.mask.from_surface(self.image)
 
         def update(self):
+            # Atualiza posições
             self.rect.x += self.speedx
             self.rect.y += self.speedy
-
+            # Limita movimentação dentro da estrada
             if self.rect.left < ROAD_LEFT:
                 self.rect.left = ROAD_LEFT
             if self.rect.right > ROAD_RIGHT:
@@ -110,20 +116,22 @@ def fase1():
             self.mask = pygame.mask.from_surface(self.image)
             self.lane_x = lane_x
             self.reset()
-
+        # Reinicia posição do carro
         def reset(self):
             self.rect.centerx = self.lane_x
             self.rect.y = random.randint(-500, -CAR_HEIGHT)
             self.speedy = random.randint(4, 7)
-
+        # Movimento dos carros
         def update(self):
             self.rect.y += self.speedy
+            # Reinicia ao sair da tela
             if self.rect.top > HEIGHT:
                 self.reset()
 
+    # Grupos de sprites
     all_sprites = pygame.sprite.Group()
     all_cars = pygame.sprite.Group()
-
+    # Criação do jogador
     jogador = Entregador(imagem_entregador)
     all_sprites.add(jogador)
 
@@ -132,39 +140,47 @@ def fase1():
         carro = Carro(random.choice(list(car_images.values())), lane_x)
         all_sprites.add(carro)
         all_cars.add(carro)
-
+    # Controle de jogo
     game = True
 
+    # Loop principal fase 1 
     while game:
         clock.tick(FPS)
 
+        # Fecha jogo
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+    # Movimentação do entregador
         teclas = pygame.key.get_pressed()
         jogador.speedx = 0
         jogador.speedy = 0
 
+        # Movimento para esquerda
         if teclas[pygame.K_LEFT]:
             jogador.speedx = -5
+        # Movimento para direita
         if teclas[pygame.K_RIGHT]:
             jogador.speedx = 5
+        # Movimento para cima
         if teclas[pygame.K_UP]:
             jogador.speedy = -5
+        # Movimento para baixo
         if teclas[pygame.K_DOWN]:
             jogador.speedy = 5
-
+        # Atualiza sprites
         all_sprites.update()
 
         # Colisão com carros: derrota
         if pygame.sprite.spritecollide(jogador, all_cars, False, pygame.sprite.collide_mask):
             try:
+                # Para a música
                 pygame.mixer.music.stop()
             except:
                 pass
-
+            # Mostra tela de derrota
             perdeu()
             return 0
 
@@ -177,10 +193,11 @@ def fase1():
         window.blit(imagem_fundo, (0, 0))
         window.blit(imagem_cliente, cliente_rect)
         all_sprites.draw(window)
+        # Atualiza a tela
         pygame.display.flip()
 
     return 0
 
-
+# Executa a tela inicial se o arquivo for aberto diretamente
 if __name__ == "__main__":
     fase1()
