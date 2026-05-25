@@ -11,61 +11,65 @@ from ganhou import ganhou
 # Função principal jogo
 def main():
 
-    # Tela de início
-    inicio()
-    # Define a fase inicial do jogo
-    fase_atual = 1
-
-    # Loop principal do jogo para controlar a transição entre as fases
+    # Loop para reiniciar o jogo depois de ganhar ou perder
     while True:
 
-        #  Fase 1 
-        # Verifica se a fase atual é a fase 1
-        if fase_atual == 1:
-            # Executa a fase 1 e armazena o resultado
-            resultado = fase1()
+        # Tela de início
+        inicio()
+        # Define a fase inicial do jogo
+        fase_atual = 1
 
-            # Passou da fase 1
-            if resultado == 1:
-                fase_atual = 2
+        # Loop principal do jogo para controlar a transição entre as fases
+        while True:
 
-            # Perdeu
+            #  Fase 1 
+            # Verifica se a fase atual é a fase 1
+            if fase_atual == 1:
+                # Executa a fase 1 e armazena o resultado
+                resultado = fase1()
+
+                # Passou da fase 1
+                if resultado == 1:
+                    fase_atual = 2
+
+                # Perdeu
+                else:
+                    perdeu()
+                    break
+
+            # Verifica se a fase atual é a fase 2 
+            elif fase_atual == 2:
+                # Executa a fase 2 e armazena o resultado
+                resultado = fase2()
+
+                # Passou da fase 2
+                if resultado == 1:
+                    fase_atual = 3
+
+                # Perdeu
+                else:
+                    perdeu()
+                    break
+
+            # Verifica se a fase atual é a fase 3
+            elif fase_atual == 3:
+                # Executa a fase 3 e armazena o resultado
+                resultado = fase3()
+
+                # Passou da fase 3
+                if resultado == 1:
+                    ganhou()
+
+                # Perdeu
+                else:
+                    perdeu()
+
+                # Encerra o loop das fases e volta para a tela inicial
+                break
+
+            # Caso aconteça algum valor inválido, encerra o loop das fases
             else:
-                fase_atual = 1
-
-        # Verifica se a fase atual é a fase 2 
-        elif fase_atual == 2:
-            # Executa a fase 2 e armazena o resultado
-            resultado = fase2()
-
-            # Passou da fase 2
-            if resultado == 1:
-                fase_atual = 3
-
-            # Perdeu
-            else:
-                fase_atual = 1
-
-        # Verifica se a fase atual é a fase 3
-        elif fase_atual == 3:
-            # Executa a fase 3 e armazena o resultado
-            resultado = fase3()
-
-            # Passou da fase 3
-            if resultado == 1:
-                ganhou()
-
-            # Perdeu
-            else:
-                perdeu()
-
-            # Encerra o loop principal
-            break
-        # Caso aconteça algum valor inválido, encerra o jogo
-        else:
-            break
-    # Fecha o programa
-    sys.exit()
+                break
 
 # Executa se o arquivo for iniciado diretamente
 if __name__ == "__main__":
