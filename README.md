@@ -1,6 +1,9 @@
 # PygameCERTO
 Jogo pygame DeSoft
 
+TÍTULO DO PROJETO: 
+"Entregando"
+
 AUTORES:
 Cristiana Pacces, Julie Yoshihiro
 
