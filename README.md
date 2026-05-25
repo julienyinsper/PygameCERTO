@@ -11,3 +11,7 @@ ARQUIVO PARA EXCECUTAR: jogo.py
 
 IA: 
 Utilizamos IA para corrigir erros ao longo do processo de criação do jogo. 
+
+LINK VÍDEO EXPLICATIVO: 
+https://youtu.be/OKMjwl33cuI?si=buH6RzSJd2mnZGEG
+
