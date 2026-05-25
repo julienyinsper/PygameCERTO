@@ -1,3 +1,4 @@
+
 # Importa bibliotecas
 import pygame
 import random
@@ -230,9 +231,8 @@ def fase3():
                 pygame.mixer.music.stop()
             except:
                 pass
-            # Mostra tela de derrota
-            perdeu()
-            return
+            # Retorna que perdeu
+            return 0
 
         # Encostou no cliente = ganhou
         if jogador.rect.colliderect(cliente.rect):
@@ -244,9 +244,8 @@ def fase3():
             # Toca som de vitória
             if som_yay is not None:
                 som_yay.play()
-            # Mostra tela de vitória
-            ganhou()
-            return
+            # Retorna que ganhou
+            return 1
 
         # Desenho
         tela.blit(fundo, (0, fundo_y))
