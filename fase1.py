@@ -1,18 +1,20 @@
+# Importando bibliotecas
 import pygame
 import random
 import sys
+# Importando telas
 from perdeu import perdeu
 from tela_prox_nivel import tela_prox_nivel
 
-
+# Função principal fase 1 
 def fase1():
     pygame.init()
-
+    
     try:
         pygame.mixer.init()
     except:
         pass
-
+    # Configurações da tela
     WIDTH, HEIGHT = 900, 600
     window = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Entregando")
@@ -73,11 +75,12 @@ def fase1():
     CAR_HEIGHT = 140
     car_colors = ["azul", "vermelho", "amarelo"]
     car_images = {}
-
+    # Função carros coloridos
     for color in car_colors:
         img = pygame.image.load(f"Assets/Imagens/Carro_{color}.png").convert_alpha()
         car_images[color] = pygame.transform.scale(img, (CAR_WIDTH, CAR_HEIGHT))
-
+    
+    #Classes para entregador e carros
     class Entregador(pygame.sprite.Sprite):
         def __init__(self, img):
             super().__init__()
@@ -121,6 +124,7 @@ def fase1():
             if self.rect.top > HEIGHT:
                 self.reset()
 
+    # Grupos de sprites
     all_sprites = pygame.sprite.Group()
     all_cars = pygame.sprite.Group()
 
@@ -135,14 +139,17 @@ def fase1():
 
     game = True
 
+    # Loop principal fase 1 
     while game:
         clock.tick(FPS)
 
+        # Fecha jogo
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+    # Movimentação do entregador
         teclas = pygame.key.get_pressed()
         jogador.speedx = 0
         jogador.speedy = 0

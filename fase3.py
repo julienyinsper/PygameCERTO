@@ -1,12 +1,13 @@
+# Importa bibliotecas
 import pygame
 import random
 import os
 import sys
-
+# Importa telas
 from perdeu import perdeu
 from ganhou import ganhou
 
-
+# Função principal fase 3
 def fase3():
     pygame.init()
 
@@ -15,6 +16,7 @@ def fase3():
     except:
         pass
 
+# Configurações da tela
     LARGURA = 900
     ALTURA = 600
     FPS = 30
@@ -23,9 +25,11 @@ def fase3():
     pygame.display.set_caption("Entregando - Fase 3")
     clock = pygame.time.Clock()
 
+    # Pasta imagens e sons
     pasta_imagens = os.path.join("Assets", "Imagens")
     pasta_sons = os.path.join("Assets", "Sons")
 
+    # Função para carregar imagens e sons 
     def carregar_imagem(nome, tamanho=None, alpha=True):
         caminho = os.path.join(pasta_imagens, nome)
 
@@ -46,22 +50,23 @@ def fase3():
         except:
             return None
 
-    # ---------- Imagens ----------
+    # Carrega fundo
     fundo = carregar_imagem("Rua.png", (LARGURA, ALTURA), alpha=False)
-
     fundo_y = 0
     velocidade_fundo = 10
 
+    # Carrega pessoas
     img_entregador = carregar_imagem("Entregador.png", (100, 70))
     img_cliente = carregar_imagem("Cliente.png", (120, 80))
 
+    # Carrega carros
     imagens_carros = [
         carregar_imagem("Carro_amarelo.png", (80, 140)),
         carregar_imagem("Carro_azul.png", (80, 140)),
         carregar_imagem("Carro_vermelho.png", (80, 140))
     ]
 
-    # ---------- Sons ----------
+    # Sons Yay e trilha sonora
     som_yay = carregar_som("Yay.mp3")
 
     try:
@@ -71,7 +76,7 @@ def fase3():
     except:
         pass
 
-    # ---------- Rua ----------
+    # Rua configurações
     ROAD_LEFT = 300
     ROAD_RIGHT = 680
     ROAD_CENTER = (ROAD_LEFT + ROAD_RIGHT) // 2
@@ -88,7 +93,7 @@ def fase3():
 
     DISTANCIA_ENTRE_CARROS = 420
 
-    # ---------- Classes ----------
+    # Classes para entregador, carros e cliente
     class Entregador(pygame.sprite.Sprite):
         def __init__(self):
             super().__init__()
@@ -125,6 +130,7 @@ def fase3():
             self.rect.centerx = self.lane_x
             self.rect.y = -200 - self.posicao_na_faixa * DISTANCIA_ENTRE_CARROS
 
+        # Carro aparece na rua 
         def reset(self):
             self.image = random.choice(imagens_carros)
             self.rect = self.image.get_rect()
@@ -132,7 +138,7 @@ def fase3():
             self.speedy = velocidades_faixas[self.lane_x]
             self.rect.centerx = self.lane_x
             self.rect.y = random.randint(-900, -300)
-
+            # Impede que dois carros apareçam muito próximos um do outro
             for outro_carro in grupo_carros:
                 if outro_carro != self and outro_carro.lane_x == self.lane_x:
                     while abs(self.rect.y - outro_carro.rect.y) < DISTANCIA_ENTRE_CARROS:
@@ -155,7 +161,7 @@ def fase3():
         def update(self):
             pass
 
-    # ---------- Grupos ----------
+    # Grupos de sprites
     todos_sprites = pygame.sprite.Group()
     grupo_carros = pygame.sprite.Group()
 
@@ -165,13 +171,14 @@ def fase3():
     todos_sprites.add(jogador)
     todos_sprites.add(cliente)
 
+    # Cria 2 carros por faixa
     for lane_x in LANE_XS:
         for posicao in range(2):
             carro = Carro(lane_x, posicao)
             todos_sprites.add(carro)
             grupo_carros.add(carro)
 
-    # ---------- Loop principal ----------
+    # Loop principal fase 3 
     rodando = True
 
     while rodando:
